@@ -28,7 +28,7 @@ class searchbar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
     
           children: [
-            Icon(Icons.rocket_launch_outlined, color:Colors.red),
+            Icon(Icons.rocket_launch_outlined, color:onSurface),
             SizedBox(width: 9),
             Text(
               "Search...",

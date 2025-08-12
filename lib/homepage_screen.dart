@@ -42,7 +42,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
                       Expanded(flex: 2, child: searchbar()),
                       SizedBox(width: 9),
                       Expanded(
-                        child: ElevatedButton.icon(
+                        child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primary,
                             foregroundColor: onSurface,
@@ -56,16 +56,21 @@ class _HomepageScreenState extends State<HomepageScreen> {
                             bottomSheet(context);
                           },
 
-                          label: Text(
+                          child: Row(children:
+                          
+                          [
+                            Text(
                             "Add",
                             style: TextStyle(color: onSurface, fontSize: 18),
                           ),
-                          icon: Icon(
-                            Icons.add,
+                           SizedBox(width: 8),
+                          Icon(
+                            Icons.add_circle_outline,
                             color: onSurface,
                             size: 20,
                             weight: 28.0,
-                          ),
+                          ),],)
+                          
                         ),
                       ),
                     ],

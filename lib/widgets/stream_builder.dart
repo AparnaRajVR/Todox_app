@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:panara_dialogs/panara_dialogs.dart';
@@ -15,18 +14,18 @@ class TaskStreamWidget extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseService.gettask(),
       builder: (context, snapshot) {
-        // Handle loading and error states
+        
         if (!snapshot.hasData || snapshot.data == null) {
           return SizedBox.shrink();
         }
 
         final tasks = snapshot.data!.docs;
 
-        // If no tasks exist, show empty state
+        // If no tasks exist,
         if (tasks.isEmpty) {
           return Column(
             children: [
-              // Status cards with zero counts
+             
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -34,31 +33,42 @@ class TaskStreamWidget extends StatelessWidget {
                   StatusCard(label: "Completed", count: 0),
                 ],
               ),
-              Divider(color: textcolor[50]),
+              Divider(),
               SizedBox(height: 30),
-              // Empty state message
-              Column(
-                children: [
-                  Icon(Icons.note_alt, size: 30, color: onSurface),
-                  SizedBox(height: 10),
-                  Text(
-                    "You don't have any tasks yet",
-                    style: TextStyle(color: onSurface, fontSize: 18),
-                  ),
-                  Text(
-                    "Start adding tasks and manage your time effectively",
-                    style: TextStyle(color: textcolor, fontSize: 16),
-                  ),
-                ],
+             
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.event_note_outlined, size: 50),
+                    SizedBox(height: 10),
+                    Text(
+                      "You don't have any tasks yet",
+                      style: TextStyle(color: textcolor, fontSize: 18),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      "Start adding tasks and manage your time effectively",
+                      style: TextStyle(
+                        color: textcolor,
+                        fontSize: 16,
+                        height: 1.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
             ],
           );
         }
 
-        // Calculate counts for status cards
+       
         int pendingCount = 0;
         int completedCount = 0;
-        
+
         for (var task in tasks) {
           final taskdata = task.data() as Map<String, dynamic>?;
           if (taskdata != null) {
@@ -80,10 +90,10 @@ class TaskStreamWidget extends StatelessWidget {
                 StatusCard(label: "Completed", count: completedCount),
               ],
             ),
-            
+
             Divider(color: textcolor[50]),
             SizedBox(height: 30),
-            
+
             // Task List
             Expanded(
               child: ListView.builder(
@@ -101,23 +111,27 @@ class TaskStreamWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: ListTile(
+                      contentPadding: EdgeInsets.only(left: 16, right: 8),
                       leading: Checkbox(
                         value: ischecked,
-                        onChanged: (bool? value)async {
+                        onChanged: (bool? value) async {
                           if (value != null) {
-      try {
-        String newStatus = value ? 'completed' : 'pending';
-        await FirebaseService.updatetaskstatus(taskdoc.id, newStatus);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to update task'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-
+                            try {
+                              String newStatus =
+                                  value ? 'completed' : 'pending';
+                              await FirebaseService.updatetaskstatus(
+                                taskdoc.id,
+                                newStatus,
+                              );
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Failed to update task'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
                         },
                         activeColor: primary,
                         shape: CircleBorder(),
@@ -127,7 +141,10 @@ class TaskStreamWidget extends StatelessWidget {
                         style: TextStyle(
                           color: onSurface,
                           fontSize: 18,
-                          decoration: ischecked? TextDecoration.lineThrough:TextDecoration.none
+                          decoration:
+                              ischecked
+                                  ? TextDecoration.lineThrough
+                                  : TextDecoration.none,
                         ),
                       ),
                       trailing: Row(
@@ -135,44 +152,69 @@ class TaskStreamWidget extends StatelessWidget {
                         children: [
                           IconButton(
                             onPressed: () {
-                              bottomSheet(context,isEditing: true,
-                              taskid: taskdata?['taskid'],
-                              existingTask: taskdata?['name']);
+                              bottomSheet(
+                                context,
+                                isEditing: true,
+                                taskid: taskdata?['taskid'],
+                                existingTask: taskdata?['name'],
+                              );
                             },
-                            icon: Icon(Icons.edit_outlined,size: 17, ),
+                            
+                            icon: Icon(Icons.edit_outlined, size: 17),
+                            padding: EdgeInsets.all(8),       
+      constraints: BoxConstraints(),   
+      splashRadius: 16,
+      visualDensity: VisualDensity.compact,
                           ),
-                          IconButton(
-                            onPressed: () {
-                              PanaraConfirmDialog.show(
-    context,
-    title: "Delete Task",
-    message: "Are you sure you want to delete '${taskdata?['name']}'",
-    confirmButtonText: "Delete",
-    cancelButtonText: "Cancel",
-    onTapCancel: () {
-        Navigator.pop(context);
-    },
-    onTapConfirm: ()async {
-        Navigator.pop(context);
-        try{
-          await FirebaseService.deletetask(taskdoc.id);
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Task deleted successfully"),backgroundColor: Colors.green,),
-          );
-        }
-        catch(e){
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("failed to delete: $e"),
-          backgroundColor: Colors.red)
-          )
-          ;
-        }
-    },
-    imagePath: 'assets/images/delete_img.png',  
-  
-    panaraDialogType: PanaraDialogType.normal,
-    barrierDismissible: false, 
-);
-                            },
-                            icon: Icon(Icons.delete_outlined, size:17),
+
+                          Transform.translate(
+                            offset: Offset(-15, 0),
+                            child: IconButton(
+                              
+                              onPressed: () {
+                                PanaraConfirmDialog.show(
+                                  context,
+                                  title: "Delete Task",
+                                  message:
+                                      "Are you sure you want to delete '${taskdata?['name']}'",
+                                  confirmButtonText: "Delete",
+                                  cancelButtonText: "Cancel",
+                                  onTapCancel: () {
+                                    Navigator.pop(context);
+                                  },
+                                  onTapConfirm: () async {
+                                    Navigator.pop(context);
+                                    try {
+                                      await FirebaseService.deletetask(
+                                        taskdoc.id,
+                                      );
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            "Task deleted successfully",
+                                          ),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text("failed to delete: $e"),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  imagePath: 'assets/images/delete_img.png',
+                            
+                                  panaraDialogType: PanaraDialogType.normal,
+                                  barrierDismissible: false,
+                                );
+                              },
+                              icon: Icon(Icons.delete_outlined, size: 17),padding: EdgeInsets.all(8),      
+      splashRadius: 16,
+      visualDensity: VisualDensity.compact,
+                            ),
                           ),
                         ],
                       ),
