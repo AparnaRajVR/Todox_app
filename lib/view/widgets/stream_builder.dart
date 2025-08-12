@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:panara_dialogs/panara_dialogs.dart';
 import 'package:todo_app/constants/const.dart';
 import 'package:todo_app/services/firebase_service.dart';
-import 'package:todo_app/widgets/bottom_sheet.dart';
-import 'package:todo_app/widgets/statuscard.dart';
+import 'package:todo_app/view/widgets/statuscard.dart';
+import 'package:todo_app/view/widgets/task_action_buttons.dart';
 
 class TaskStreamWidget extends StatelessWidget {
   const TaskStreamWidget({super.key});
@@ -14,18 +13,15 @@ class TaskStreamWidget extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseService.gettask(),
       builder: (context, snapshot) {
-        
         if (!snapshot.hasData || snapshot.data == null) {
           return SizedBox.shrink();
         }
 
         final tasks = snapshot.data!.docs;
 
-        // If no tasks exist,
         if (tasks.isEmpty) {
           return Column(
             children: [
-             
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -35,7 +31,6 @@ class TaskStreamWidget extends StatelessWidget {
               ),
               Divider(),
               SizedBox(height: 30),
-             
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
@@ -65,7 +60,6 @@ class TaskStreamWidget extends StatelessWidget {
           );
         }
 
-       
         int pendingCount = 0;
         int completedCount = 0;
 
@@ -82,7 +76,6 @@ class TaskStreamWidget extends StatelessWidget {
 
         return Column(
           children: [
-            // Status Cards
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -94,7 +87,6 @@ class TaskStreamWidget extends StatelessWidget {
             Divider(color: textcolor[50]),
             SizedBox(height: 30),
 
-            // Task List
             Expanded(
               child: ListView.builder(
                 itemCount: tasks.length,
@@ -147,76 +139,9 @@ class TaskStreamWidget extends StatelessWidget {
                                   : TextDecoration.none,
                         ),
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              bottomSheet(
-                                context,
-                                isEditing: true,
-                                taskid: taskdata?['taskid'],
-                                existingTask: taskdata?['name'],
-                              );
-                            },
-                            
-                            icon: Icon(Icons.edit_outlined, size: 17),
-                            padding: EdgeInsets.all(8),       
-      constraints: BoxConstraints(),   
-      splashRadius: 16,
-      visualDensity: VisualDensity.compact,
-                          ),
-
-                          Transform.translate(
-                            offset: Offset(-15, 0),
-                            child: IconButton(
-                              
-                              onPressed: () {
-                                PanaraConfirmDialog.show(
-                                  context,
-                                  title: "Delete Task",
-                                  message:
-                                      "Are you sure you want to delete '${taskdata?['name']}'",
-                                  confirmButtonText: "Delete",
-                                  cancelButtonText: "Cancel",
-                                  onTapCancel: () {
-                                    Navigator.pop(context);
-                                  },
-                                  onTapConfirm: () async {
-                                    Navigator.pop(context);
-                                    try {
-                                      await FirebaseService.deletetask(
-                                        taskdoc.id,
-                                      );
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            "Task deleted successfully",
-                                          ),
-                                          backgroundColor: Colors.green,
-                                        ),
-                                      );
-                                    } catch (e) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text("failed to delete: $e"),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  imagePath: 'assets/images/delete_img.png',
-                            
-                                  panaraDialogType: PanaraDialogType.normal,
-                                  barrierDismissible: false,
-                                );
-                              },
-                              icon: Icon(Icons.delete_outlined, size: 17),padding: EdgeInsets.all(8),      
-      splashRadius: 16,
-      visualDensity: VisualDensity.compact,
-                            ),
-                          ),
-                        ],
+                      trailing: TaskActionButtons(
+                        taskId: taskdata?['taskid'] ?? taskdoc.id,
+                        taskName: taskdata?['name'] ?? 'Unnamed task',
                       ),
                     ),
                   );
