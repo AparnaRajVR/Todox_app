@@ -51,4 +51,47 @@ class FirebaseService {
       throw Exception("Failed to update :$e");
     }
   }
+
+    //  search method
+  static Future<List<QueryDocumentSnapshot>> searchTasks(String searchQuery) async {
+    if (searchQuery.trim().isEmpty) {
+      // If search query is empty, return all tasks
+      final snapshot = await FirebaseFirestore.instance
+          .collection("Dailytask")
+          .orderBy("createdAt", descending: true)
+          .get();
+      return snapshot.docs;
+    }
+    
+    try {
+      
+      final snapshot = await FirebaseFirestore.instance
+          .collection("Dailytask")
+          .orderBy("createdAt", descending: true)
+          .get();
+      
+      // Filter tasks locally for substring search
+      String query = searchQuery.trim().toLowerCase();
+      List<QueryDocumentSnapshot> filteredTasks = snapshot.docs.where((doc) {
+        final taskData = doc.data() as Map<String, dynamic>?;
+        if (taskData != null && taskData['name'] != null) {
+          String taskName = taskData['name'].toString().toLowerCase();
+          return taskName.contains(query); 
+        }
+        return false;
+      }).toList();
+      
+      return filteredTasks;
+    } catch (e) {
+      // Fallback to regular query if search fails
+      print("Search fallback: $e");
+      final snapshot = await FirebaseFirestore.instance
+          .collection("Dailytask")
+          .orderBy("createdAt", descending: true)
+          .get();
+      return snapshot.docs;
+    }
+  }
+
+  
 }
