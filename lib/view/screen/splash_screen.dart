@@ -1,34 +1,36 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:todo_app/constants/const.dart';
 import 'package:todo_app/view/screen/homepage_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  SplashScreenState createState() => SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
-  
+class SplashScreenState extends State<SplashScreen> {
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    Timer(Duration(seconds: 2),() {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>HomepageScreen()));
-    });
+    _navigateToHome();
   }
+
+  _navigateToHome() async {
+    await Future.delayed(Duration(seconds: 2));
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => HomeView()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      body:Center(
-        child: Image.asset(
-          "assets/images/todo_img.PNG",
-          width: 200,
-          height: 200,),
-      )
+      backgroundColor: background,
+      body: Center(
+        child: Image.asset("assets/images/todo_img.PNG",height: 160,),
+      ),
     );
   }
 }
