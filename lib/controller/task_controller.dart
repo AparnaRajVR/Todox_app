@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirebaseService {
-  // Store task with all essential attributes
+ 
   static Future<void> storetask(String taskname, {
     String? description,
     DateTime? dueDate,
@@ -37,7 +37,7 @@ class FirebaseService {
         .snapshots();
   }
 
-  // Async search method: One-time search (fast and reliable)
+ 
   static Future<List<QueryDocumentSnapshot>> searchTasksAsync(String searchQuery) async {
     if (searchQuery.trim().isEmpty) {
       // If search query is empty, return all tasks
@@ -69,8 +69,8 @@ class FirebaseService {
       
       return filteredTasks;
     } catch (e) {
-      // Fallback to regular query if search fails
-      print("Search fallback: $e");
+      
+      
       final snapshot = await FirebaseFirestore.instance
           .collection("Dailytask")
           .orderBy("createdAt", descending: true)
@@ -85,7 +85,7 @@ class FirebaseService {
           .collection("Dailytask")
           .doc(taskid)
           .update({'status': newstatus});
-      print("Task status updated: $taskid -> $newstatus"); // Debug log
+      print("Task status updated: $taskid -> $newstatus"); 
     } catch (e) {
       throw Exception("Failed to update:$e");
     }
@@ -97,7 +97,7 @@ class FirebaseService {
           .collection("Dailytask")
           .doc(taskid)
           .delete();
-      print("Task deleted: $taskid"); // Debug log
+      print("Task deleted: $taskid"); 
     } catch (e) {
       throw Exception("Failed to Delete :$e");
     }
@@ -109,7 +109,7 @@ class FirebaseService {
           .collection("Dailytask")
           .doc(taskid)
           .update({'name': newtask});
-      print("Task name updated: $taskid -> $newtask"); // Debug log
+      print("Task name updated: $taskid -> $newtask"); 
     } catch (e) {
       throw Exception("Failed to update :$e");
     }
@@ -137,7 +137,7 @@ class FirebaseService {
           .doc(taskid)
           .update(updateData);
       
-      print("Task updated: $taskid with data: $updateData"); // Debug log
+      print("Task updated: $taskid with data: $updateData"); 
     } catch (e) {
       throw Exception("Failed to update task: $e");
     }
